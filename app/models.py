@@ -1,4 +1,6 @@
-from app import db
+import datetime
+
+from main import db
 
 # income category model
 class CategoryModel(db.Model):
@@ -129,7 +131,7 @@ class IncomeModel(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), unique=False, nullable=False)
     amount = db.Column(db.Float, nullable=True)
-    date = db.Column(db.DateTime)
+    date = db.Column(db.DateTime,default = datetime.datetime.utcnow)
     barcodeId = db.Column(db.Integer,db.ForeignKey('barcode.id'))
     barcode = db.relationship(BarcodeModel)
     categoryId = db.Column(db.Integer, db.ForeignKey('category.id'))
@@ -151,12 +153,11 @@ class IncomeModel(db.Model):
 
     # update
     @classmethod
-    def updateby_id(cls, id, newName=None, newAmount=None, newDate=None, newCategoryId=None, newBarcodeId=None):
+    def updateby_id(cls, id, newName=None, newAmount=None, newCategoryId=None, newBarcodeId=None):
         record = cls.query.filter_by(id=id).first()
         if record:
             record.name = newName if newName else record.name
             record.amount = newAmount if newAmount else record.amount
-            record.date = newDate if newDate else record.date
             record.categoryId = newCategoryId if newCategoryId else record.categoryId
             record.barcodeId = newBarcodeId if newBarcodeId else record.barcodeId
             db.session.commit()
