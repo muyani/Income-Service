@@ -1,5 +1,4 @@
 import datetime
-
 from flask import Flask
 from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
@@ -16,8 +15,6 @@ def create_tables():
     db.create_all()
 
 from resources import Income,Incomes,Category,Categories,Barcode,Barcodes,Homepage
-
-
 
 api = Api(app)
 

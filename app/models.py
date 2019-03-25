@@ -1,13 +1,13 @@
 import datetime
-
 from main import db
-
 # income category model
+
 class CategoryModel(db.Model):
-    __tablename__ = 'category'
+    __tablename__ = 'income_categories'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable=False, unique=True)
     budget = db.Column(db.Float, nullable=True)
+    incomes = db.relationship('IncomeModel',backref = 'incomes')
 
     # create
     def save_record(self):
@@ -65,7 +65,7 @@ class CategoryModel(db.Model):
 
 # barcode model
 class BarcodeModel(db.Model):
-    __tablename__ = 'barcode'
+    __tablename__ = 'barcodes'
 
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String(500),unique=True,nullable=False)
@@ -126,16 +126,15 @@ class BarcodeModel(db.Model):
 
 #  income model
 class IncomeModel(db.Model):
-    __tablename__ = 'income'
+    __tablename__ = 'incomes'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), unique=False, nullable=False)
     amount = db.Column(db.Float, nullable=True)
     date = db.Column(db.DateTime,default = datetime.datetime.utcnow)
-    barcodeId = db.Column(db.Integer,db.ForeignKey('barcode.id'))
+    barcodeId = db.Column(db.Integer,db.ForeignKey('barcodes.id'),nullable=True)
     barcode = db.relationship(BarcodeModel)
-    categoryId = db.Column(db.Integer, db.ForeignKey('category.id'))
-    category = db.relationship(CategoryModel)
+    categoryId = db.Column(db.Integer, db.ForeignKey('income_categories.id'))
 
     # create
     def save_record(self):
