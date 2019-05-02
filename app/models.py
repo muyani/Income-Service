@@ -1,18 +1,21 @@
 import datetime
 from main import db
-# income category model
 
+
+
+# income category model
 class CategoryModel(db.Model):
     __tablename__ = 'income_categories'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable=False, unique=True)
     budget = db.Column(db.Float, nullable=True)
-    incomes = db.relationship('IncomeModel',backref = 'incomes')
+    incomes = db.relationship('IncomeModel',backref = 'category')
 
     # create
     def save_record(self):
         db.session.add(self)
         db.session.commit()
+        return self
 
     # read
     @classmethod
@@ -38,7 +41,7 @@ class CategoryModel(db.Model):
             record.budget = newBudget if newBudget else record.budget
             print(record.budget)
             db.session.commit()
-            return True
+            return cls.query.filter_by(name=newName).first()
         else:
             return False
 
@@ -66,7 +69,6 @@ class CategoryModel(db.Model):
 # barcode model
 class BarcodeModel(db.Model):
     __tablename__ = 'barcodes'
-
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String(500),unique=True,nullable=False)
     productName = db.Column(db.String(120), nullable=False)
@@ -76,6 +78,7 @@ class BarcodeModel(db.Model):
     def save_record(self):
         db.session.add(self)
         db.session.commit()
+        return self
 
     # read
     @classmethod
@@ -100,7 +103,7 @@ class BarcodeModel(db.Model):
             record.amount = newAmount if newAmount else record.amount
             record.productName = newProductName if newProductName else record.productName
             db.session.commit()
-            return True
+            return cls.query.filter_by(id=id).first()
         else:
             return False
 
@@ -132,14 +135,17 @@ class IncomeModel(db.Model):
     name = db.Column(db.String(120), unique=False, nullable=False)
     amount = db.Column(db.Float, nullable=True)
     date = db.Column(db.DateTime,default = datetime.datetime.utcnow)
+    usernumber = db.Column(db.Integer, nullable=False, unique=False)
     barcodeId = db.Column(db.Integer,db.ForeignKey('barcodes.id'),nullable=True)
     barcode = db.relationship(BarcodeModel)
     categoryId = db.Column(db.Integer, db.ForeignKey('income_categories.id'))
+
 
     # create
     def save_record(self):
         db.session.add(self)
         db.session.commit()
+        return self
 
     # read
     @classmethod
@@ -147,9 +153,8 @@ class IncomeModel(db.Model):
         return cls.query.filter_by(id=id).first()
 
     @classmethod
-    def find_all(cls):
-        return cls.query.all()
-
+    def find_all(cls,uid):
+        return cls.query.filter_by(usernumber = uid).all()
     # update
     @classmethod
     def updateby_id(cls, id, newName=None, newAmount=None, newCategoryId=None, newBarcodeId=None):
@@ -160,7 +165,7 @@ class IncomeModel(db.Model):
             record.categoryId = newCategoryId if newCategoryId else record.categoryId
             record.barcodeId = newBarcodeId if newBarcodeId else record.barcodeId
             db.session.commit()
-            return True
+            return cls.query.filter_by(id=id).first()
         else:
             return False
 
